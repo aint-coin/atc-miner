@@ -17,4 +17,8 @@ const (
 	RewardFee = 5 * Fee
 
 	DappAddress = "3ATEdNSPBrSXaniV24ePPoHNavehXwF7rf3"
+
+	Sep = "__"
+
+	AtcAddr = "3ATEdNSPBrSXaniV24ePPoHNavehXwF7rf3"
 )
