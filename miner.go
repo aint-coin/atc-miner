@@ -30,7 +30,7 @@ func (m *Miner) start() {
 func (m *Miner) mine() {
 	callMineIntent("3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat")
 
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 10)
 
 	callWinner()
 
