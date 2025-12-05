@@ -56,15 +56,24 @@ func (m *Miner) mineExecute() {
 	if err != nil {
 		log.Println(err)
 	}
+	done := false
+
+	log.Println(winner)
 
 	miners := getMiners()
 
 	for _, mnr := range miners {
 		s, e := parseMiner(mnr)
+		log.Printf("%d %d", s, e)
 		if s <= winner.(int64) && winner.(int64) <= e {
+			done = true
 			callMine(mnr.GetKey())
 			log.Printf("New block: %s", mnr.GetKey())
 		}
+	}
+
+	if !done {
+		callMine("miner__3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat")
 	}
 }
 
