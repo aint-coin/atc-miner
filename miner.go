@@ -19,7 +19,12 @@ func (m *Miner) start() {
 
 			if m.height%10 == 0 {
 				m.mine()
-				log.Println("New block!")
+
+				time.Sleep(time.Second)
+
+				m.mineDelete()
+			} else if m.height%10 == 1 {
+				m.mineIntent()
 			}
 		}
 
@@ -27,23 +32,54 @@ func (m *Miner) start() {
 	}
 }
 
-func (m *Miner) mine() {
-	callMineIntent("3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat")
+func (m *Miner) mineIntent() {
+	callMineIntent("3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat", 10000)
 
 	time.Sleep(time.Second * 10)
 
+	callMineIntent("3AShXVgRcRis82CwD7o9pz1Ac9vmRYMqELT", 1000)
+
+	time.Sleep(time.Second * 10)
+
+	callMineIntent("3AKCefhcrijSwwWM671ahhMrPVrE7Je3j4s", 100)
+}
+
+func (m *Miner) mineDelete() {
+	callDelete("miner__3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat")
+	callDelete("miner__3AShXVgRcRis82CwD7o9pz1Ac9vmRYMqELT")
+	callDelete("miner__3AKCefhcrijSwwWM671ahhMrPVrE7Je3j4s")
+}
+
+func (m *Miner) mineExecute() {
+	addr := AtcAddr
+	winner, err := getData("winner", &addr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	miners := getMiners()
+
+	for _, mnr := range miners {
+		s, e := parseMiner(mnr)
+		if s <= winner.(int64) && winner.(int64) <= e {
+			callMine(mnr.GetKey())
+			log.Printf("New block: %s", mnr.GetKey())
+		}
+	}
+}
+
+func (m *Miner) mine() {
 	callWinner()
 
 	time.Sleep(time.Second)
 
-	callMine("miner__3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat")
-
-	time.Sleep(time.Second)
-
-	callDelete("miner__3AG2sa1qeCRfBTQ3YTsBZVTz4Wz1u3YwSat")
+	m.mineExecute()
 }
 
 func initMiner() {
 	m := &Miner{}
+	// m.mineIntent()
+	// m.mineDelete()
+	// m.mineExecute()
 	m.start()
 }

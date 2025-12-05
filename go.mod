@@ -2,7 +2,10 @@ module atc-miner
 
 go 1.24.5
 
-require github.com/wavesplatform/gowaves v0.10.1
+require (
+	github.com/wavesplatform/gowaves v0.10.1
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+)
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -17,7 +20,6 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	go.uber.org/zap v1.22.0 // indirect
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect

@@ -149,10 +149,10 @@ func callWinner() error {
 	}
 
 	// Parse the public key
-	publicKey, err := x509.ParsePKIXPublicKey(publicBlock.Bytes)
-	if err != nil {
-		log.Fatal(fmt.Errorf("parse cert: %s", err))
-	}
+	// publicKey, err := x509.ParsePKIXPublicKey(publicBlock.Bytes)
+	// if err != nil {
+	// 	log.Fatal(fmt.Errorf("parse cert: %s", err))
+	// }
 
 	// pubk, _ := x509.MarshalPKIXPublicKey(publicKey)
 
@@ -164,39 +164,31 @@ func callWinner() error {
 	if err != nil {
 		log.Println(err)
 	}
-	// log.Println(gid)
 
-	// log.Println(base64.StdEncoding.EncodeToString(gid))
-
-	gameId := proto.NewStringArgument(blockId)
-	// rsaSign := proto.NewStringArgument("[9 232 18 234 10 173 198 156 247 101 46 223 63 84 141 59 33 193 61 56 27 44 90 21 150 33 21 52 12 47 25 192 37 184 184 189 39 108 157 206 251 89 89 245 133 98 247 219 209 200 146 83 205 215 123 184 171 13 186 134 244 30 163 167 140 194 109 96 219 245 72 41 190 130 195 24 152 9 156 192 155 253 224 229 246 36 59 3 76 201 121 211 245 195 127 213 75 189 143 132 163 248 254 188 188 101 16 85 209 34 70 156 127 2 221 188 212 244 45 10 184 8 252 250 103 108 39 114 29 55 28 25 18 170 48 157 216 206 108 55 178 133 59 233 75 208 61 103 220 150 49 227 42 195 41 63 81 210 155 66 184 253 251 183 144 63 50 56 104 67 253 132 103 17 186 35 127 250 230 170 188 215 92 119 130 13 210 213 155 173 35 131 44 85 218 15 113 160 121 112 123 29 103 122 198 104 103 201 87 60 152 185 229 43 108 113 66 203 55 22 206 77 219 63 65 100 112 47 251 52 54 151 128 202 229 3 53 231 221 84 175 57 134 155 126 214 79 101 107 21 194 205 219 222 221 81]")
-	// rsaSign := proto.BinaryArgument{
-	// 	Value: gid,
-	// }
+	blockIdArg := proto.NewStringArgument(blockId)
 	rsaSign := proto.NewStringArgument(base64.StdEncoding.EncodeToString(gid))
-	// rsaSign := proto.NewStringArgument("hMJTUbrr3QsNtJaMySQWg7bs8lxXikhrvDxSFYVwJmLH91wnIlPx8H1dRw4V6xym8q+xH8OFIS3ibG2sb/W6aUO/Lnrn88/bpEagPyOSp5TfZ459oBKLHmozCgNW7R97j4zczgev9knqsQawLDD6aI7QG3o4caCyNjMazqSqJWNXveFSkZDtdzCPGxfCwDQPZago59xKrXgeidVUTePrn0I5V3O+/X7VNtIB27I9brN8ixO54Zcduz8Ly7F40haQYDz7wgZMU+xyr6Gh9OFZggaVvatO6AFp5M4UnWhgPq78KiEO5PCXPjNRLJXreLK7h+eK3tKTAx7WMOfm55mIVQ==")
 
-	args.Append(gameId)
+	args.Append(blockIdArg)
 	args.Append(rsaSign)
 
-	msg := []byte(blockId)
+	// msg := []byte(blockId)
 
 	// Before signing, we need to hash our message
 	// The hash is what we actually sign
-	msgHash := sha256.New()
-	_, err = msgHash.Write(msg)
-	if err != nil {
-		panic(err)
-	}
-	msgHashSum := msgHash.Sum(nil)
+	// msgHash := sha256.New()
+	// _, err = msgHash.Write(msg)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// msgHashSum := msgHash.Sum(nil)
 
-	err = rsa.VerifyPSS(publicKey.(*rsa.PublicKey), cr.SHA256, msgHashSum, gid, nil)
-	if err != nil {
-		log.Println("could not verify signature: ", err)
-	}
+	// err = rsa.VerifyPSS(publicKey.(*rsa.PublicKey), cr.SHA256, msgHashSum, gid, nil)
+	// if err != nil {
+	// 	log.Println("could not verify signature: ", err)
+	// }
 	// If we don't get any error from the `VerifyPSS` method, that means our
 	// signature is valid
-	log.Println("signature verified")
+	// log.Println("signature verified")
 
 	// log.Println(args)
 
@@ -387,7 +379,7 @@ func sign(msg string, key *rsa.PrivateKey) ([]byte, error) {
 	return signature, nil
 }
 
-func callMineIntent(miner string) error {
+func callMineIntent(miner string, amount uint64) error {
 	var networkByte = byte(55)
 	var nodeURL = AnoteNodeURL
 
@@ -426,7 +418,7 @@ func callMineIntent(miner string) error {
 
 	payments := proto.ScriptPayments{}
 	payments.Append(proto.ScriptPayment{
-		Amount: 100,
+		Amount: amount,
 	})
 
 	fa := proto.OptionalAsset{}
@@ -615,4 +607,40 @@ func getBlockId() string {
 	}
 
 	return d.(string)
+}
+
+func getMiners() proto.DataEntries {
+	cl, err := client.NewClient(client.Options{BaseUrl: AnoteNodeURL, Client: &http.Client{}})
+	if err != nil {
+		log.Println(err)
+	}
+
+	addr := proto.MustAddressFromString(AtcAddr)
+	adp := client.WithMatches("^miner_.*$")
+
+	data, _, err := cl.Addresses.AddressesData(context.Background(), addr, adp)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return data
+}
+
+func prettyPrint(i interface{}) string {
+	s, _ := json.MarshalIndent(i, "", "\t")
+	return string(s)
+}
+
+func parseMiner(de proto.DataEntry) (int64, int64) {
+	start := int64(0)
+	end := int64(0)
+	v := de.ToProtobuf().GetStringValue()
+
+	s := parseItem(v, 1)
+	start = int64(s.(int))
+
+	e := parseItem(v, 2)
+	end = int64(e.(int))
+
+	return start, end
 }
