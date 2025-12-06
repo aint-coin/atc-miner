@@ -58,13 +58,13 @@ func (m *Miner) mineExecute() {
 	}
 	done := false
 
-	log.Println(winner)
+	log.Printf("Winner: %d", winner)
 
 	miners := getMiners()
 
 	for _, mnr := range miners {
 		s, e := parseMiner(mnr)
-		log.Printf("%d %d", s, e)
+		log.Printf("Start: %d End: %d", s, e)
 		if s <= winner.(int64) && winner.(int64) <= e {
 			done = true
 			callMine(mnr.GetKey())
