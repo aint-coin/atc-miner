@@ -17,13 +17,14 @@ func (m *Miner) start() {
 			m.height = getHeight()
 			log.Println(m.height)
 
-			if m.height%10 == 0 {
+			switch m.height % 10 {
+			case 0:
 				m.mine()
 
 				time.Sleep(time.Second)
 
 				m.mineDelete()
-			} else if m.height%10 == 1 {
+			case 1:
 				m.mineIntent()
 			}
 		}
