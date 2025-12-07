@@ -80,7 +80,7 @@ func (m *Miner) mineExecute() {
 func (m *Miner) mine() {
 	callWinner()
 
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 10)
 
 	m.mineExecute()
 }
